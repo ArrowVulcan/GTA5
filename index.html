@@ -4,20 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>GTA5</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+	<title>GTA5</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+	
+	<style>
+		*{
+			border: 0;
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+
+			scrollbar-color: #385863 #222;
+			scrollbar-width: thin;
+		}
+
+		html, body{
+			overflow: hidden;
+			height: 100%;
+			width: 100%;
+			background-color: #000;
+			font-family: "Montserrat", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+		}
+
+		#bg{
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background: url("./images/bg.jpg");
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+
+		#loader{
+			position: absolute;
+			text-align: center;
+			width: 100%;
+			top: 50%;
+		}
+
+		#notfound{
+			font-size: 28px;
+			margin-bottom: 10px;	
+		}
+
+		#loader #text{
+			position: relative;
+			font-size: 42px;
+			font-weight: bold;
+			color: #EEE;
+			text-shadow: 0 0 3px rgb(0, 0, 0);
+			margin-bottom: 30px;
+			background-color: #000d;
+			padding: 20px;
+		}
+
+		#contentList{
+			position: absolute;
+			opacity: 0;
+			display: none;
+			transition: opacity 500ms linear 1s;
+			margin: 50px;
+			background-color: #45769e80;
+			border-radius: 8px;
+			min-width: 500px;
+			padding: 40px;
+			box-shadow: 0px 0px 4px 0px #000;
+		}
+
+		#contentList p{
+			color: #FFF;
+			font-size: 24px;
+			margin: 10px 0px;
+			font-weight: bold;
+			text-shadow: 1px 1px 1px #000;
+		}
+
+		#copyTime{
+			position: absolute;
+			bottom: 50px;
+			right: 50px;
+			width: 100px;
+			height: 100px;
+			background-color: #F44336;
+			border-radius: 8px;
+			cursor: pointer;
+			box-shadow: 0px 0px 4px #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 500ms linear;
+		}
+
+		#copyTime p{
+			color: #FFF;
+			font-weight: bold;
+			font-size: 24px;
+			text-shadow: 1px 1px 4px #000;
+			position: absolute;
+		}
+
+		.text-green{
+			color: #0F0;
+		}
+
+		#copyTimeText{
+			width: 100%;
+			opacity: 0;
+			pointer-events: none;
+		}
+
+	</style>
+
 </head>
 <body>
+
+	<div id="bg"></div>
 
 	<div id="contentList">
 		
 	</div>
 
+	<div id="copyTime" onclick="copyCurrentTime()"><input type="text" value="" id="copyTimeText"><p>Time</p></div>
+
 	<div id="loader">
 		<div id="text">Loading Database...</div>
 	</div>
-	
-	<script type="text/javascript" src="scripts/index.js"></script>
+
+	<script>
+
+		function copyCurrentTime(){
+
+			var currentDate = new Date();
+
+			var minutes = currentDate.getMinutes().toString().length == 1 ? "0" + currentDate.getMinutes() : currentDate.getMinutes();
+			var hours = currentDate.getHours().toString().length == 1 ? "0" + currentDate.getHours() : currentDate.getHours();
+			var month = currentDate.getMonth().toString().length == 1 ? "0" + (currentDate.getMonth()+1) : (currentDate.getMonth()+1);
+			var date = currentDate.getDate().toString().length == 1 ? "0" + currentDate.getDate() : currentDate.getDate();
+			var year = currentDate.getFullYear();
+
+			var dateString = hours + ":" + minutes + " " + year + "-" + month + "-" + date;
+
+			let copy = document.getElementById("copyTimeText");
+			
+			copy.value = dateString;
+
+			copy.select();
+  			copy.setSelectionRange(0, 99999); /*For mobile devices*/
+
+			document.execCommand('copy');
+
+			copy.blur();
+
+			let url = "https://docs.google.com/spreadsheets/d/1Mlpp3Ebd-WZ7KOCPhYux5Vu01K7s49mnRiM6OcIayjY/edit#gid=0";
+
+			window.open(url, '_blank');
+
+		}
+
+		var x = setInterval(function() {
+
+			let timers = document.getElementsByClassName("timers");
+
+			for(let i=0; i < timers.length; i++){
+
+				let newTime = timers[i].dataset.time;
+				newTime = timers[i].dataset.time.slice(0, -2) + (parseInt(newTime.split("-")[2]) + 1 );
+
+				countDownDate = new Date(newTime).getTime();
+
+				if( isNaN(countDownDate) ){
+					timers[i].innerHTML = "";
+					continue;
+				}
+
+				var now = new Date().getTime();
+				var distance = countDownDate - now;
+
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				if (distance < 0) {
+					timers[i].innerHTML = timers[i].dataset.name + ": <span class='text-green'>Ready</span>";
+				}else{
+					timers[i].innerHTML = timers[i].dataset.name + ": " + hours + "h " + minutes + "m " + seconds + "s ";
+				}
+
+			}
+
+		}, 1000);
+
+	</script>
+
+	<script>
+
+		const prefix = "https://spreadsheets.google.com/feeds/list/";
+		const sheetId = "1Mlpp3Ebd-WZ7KOCPhYux5Vu01K7s49mnRiM6OcIayjY";
+		const postfix = "/od6/public/values?alt=json";
+		const spreadsheetURL = prefix + sheetId + postfix;
+
+		function getSpreadsheet(){
+			
+			$.ajax({
+				type: "GET",
+				dataType: 'jsonp',
+				url: spreadsheetURL,
+				success: function(data){
+					
+					var contentList = document.getElementById("contentList");
+					let itemList = data.feed.entry;
+					
+					for(let i = 0; i < itemList.length; i++){
+						contentList.innerHTML += '<p class="timers" data-name="' + itemList[i].gsx$name.$t + '" data-time="' + itemList[i].gsx$time.$t + '"></p>';
+					}
+					
+					$("#loader").css("opacity", "0");
+
+					setTimeout(function(){
+						$("#loader").css("display", "none");
+
+						$("#contentList").css("display", "block");
+						$("#contentList").css("opacity", "1");
+						$("#copyTime").css("opacity", "1");
+
+					}, 500);
+					
+				},
+				error: function(){
+					
+					$("#text").text("Error Getting Database...");
+					
+				}
+				
+			});
+			
+		}
+
+		/* ####################
+			Run once at start
+		#################### */
+
+		getSpreadsheet();
+
+	</script>
     
 </body>
 </html>
