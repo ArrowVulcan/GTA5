@@ -182,7 +182,12 @@
 
 				let newTime = timers[i].dataset.time;
 				newTime = timers[i].dataset.time.slice(0, -2) + (parseInt(newTime.split("-")[2]) + 1 );
-
+				
+				if( newTime.split("-")[2] == "32" ){
+					let save = parseInt(newTime.split("-")[1]) + 1;
+					newTime = newTime.slice(0, -5) + "0" + save + "-" + "01";
+				}
+				
 				countDownDate = new Date(newTime).getTime();
 
 				if( isNaN(countDownDate) ){
